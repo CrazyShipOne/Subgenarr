@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  # Frontend service
+  frontend:
+    build:
+      context: ./frontend_page
+      dockerfile: Dockerfile
+    container_name: video-subtitle-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend-api
+    networks:
+      - video-subtitle-network
+    restart: unless-stopped
+
+  # Backend API service
+  backend-api:
+    build:
+      context: ./backend_service/api
+      dockerfile: Dockerfile
+    container_name: video-subtitle-api
+    ports:
+      - "8000:8000"
+    environment:
+      # Authentication
+      - AUTH_USERNAME=${AUTH_USERNAME:-admin}
+      - AUTH_PASSWORD=${AUTH_PASSWORD:-admin123}
+      - SESSION_SECRET=${SESSION_SECRET:-change-this-secret-key-in-production}
+      - SESSION_EXPIRY=${SESSION_EXPIRY:-86400}
+
+      # Database
+      - DATABASE_PATH=/config/media_library.db
+
+      # Network
+      - HTTP_PROXY=${HTTP_PROXY:-}
+      - HTTPS_PROXY=${HTTPS_PROXY:-}
+    volumes:
+      - ./config:/config
+      - ./media:/media:ro
+      - ./tmp:/tmp
+    networks:
+      - video-subtitle-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Backend Worker service
+  backend-worker:
+    build:
+      context: ./backend_service/worker
+      dockerfile: Dockerfile
+    container_name: video-subtitle-worker
+    environment:
+      # AI Configuration
+      - AI_BASE_URL=${AI_BASE_URL:-http://localhost:11434/v1}
+      - AI_API_KEY=${AI_API_KEY:-ollama}
+      - AI_MODEL=${AI_MODEL:-gpt-4o}
+      - AI_TIMEOUT=${AI_TIMEOUT:-300}
+      - AI_MAX_RETRIES=${AI_MAX_RETRIES:-3}
+
+      # Metadata API Configuration
+      - TMDB_API_KEY=${TMDB_API_KEY:-your_tmdb_api_key}
+      - OMDB_API_KEY=${OMDB_API_KEY:-your_omdb_api_key}
+      - METADATA_API_TIMEOUT=${METADATA_API_TIMEOUT:-30}
+
+      # Database
+      - DATABASE_PATH=/config/media_library.db
+
+      # Scheduling Configuration
+      - SCAN_INTERVAL=${SCAN_INTERVAL:-3600}
+      - CLEANUP_INTERVAL=${CLEANUP_INTERVAL:-3600}
+      - WORKER_POLL_INTERVAL=${WORKER_POLL_INTERVAL:-30}
+      - TASK_TIMEOUT=${TASK_TIMEOUT:-7200}
+
+      # Processing Configuration
+      - MAX_FAILURE_COUNT=${MAX_FAILURE_COUNT:-3}
+      - MAX_CONCURRENT_WORKERS=${MAX_CONCURRENT_WORKERS:-2}
+      - AUDIO_SEGMENT_DURATION=${AUDIO_SEGMENT_DURATION:-300}
+      - AUDIO_OVERLAP_DURATION=${AUDIO_OVERLAP_DURATION:-10}
+      - SCREENSHOTS_PER_SEGMENT=${SCREENSHOTS_PER_SEGMENT:-10}
+      - TARGET_SUBTITLE_LANGUAGE=${TARGET_SUBTITLE_LANGUAGE:-en}
+      - TEMP_CLEANUP_ENABLED=${TEMP_CLEANUP_ENABLED:-true}
+      - TEMP_RETENTION_HOURS=${TEMP_RETENTION_HOURS:-24}
+
+      # Network
+      - HTTP_PROXY=${HTTP_PROXY:-}
+      - HTTPS_PROXY=${HTTPS_PROXY:-}
+    volumes:
+      - ./config:/config
+      - ./media:/media
+      - ./tmp:/tmp
+    networks:
+      - video-subtitle-network
+    restart: unless-stopped
+    depends_on:
+      backend-api:
+        condition: service_healthy
+
+networks:
+  video-subtitle-network:
+    driver: bridge
+
+volumes:
+  config:
+    driver: local
+  media:
+    driver: local
+  tmp:
+    driver: local

@@ -1,0 +1,9 @@
+# Core dependencies
+sqlalchemy==2.0.25
+python-dotenv==1.0.0
+
+# HTTP client for API calls
+httpx==0.26.0
+
+# OpenAI SDK for LLM integration
+openai==1.10.0
