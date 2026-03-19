@@ -45,7 +45,7 @@ services:
     restart: unless-stopped
     depends_on:
       backend-worker:
-        condition: service_healthy
+        condition: service_started
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
       interval: 30s
