@@ -63,11 +63,12 @@
     "files": "Files"
   },
   "status": {
-    "completed": "Completed",
-    "processing": "Processing",
     "pending": "Pending",
+    "metadata_fetching": "Fetching Metadata",
+    "processing": "Processing",
+    "completed": "Completed",
     "failed": "Failed",
-    "unprocessed": "Unprocessed"
+    "unprocessed": "No Subtitle"
   },
   "tasks": {
     "title": "Tasks",
