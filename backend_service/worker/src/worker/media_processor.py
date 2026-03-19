@@ -33,6 +33,91 @@ class MediaProcessor:
         self.cleanup_enabled = config.TEMP_CLEANUP_ENABLED
         self.llm_client = LLMClient()
 
+    # ISO 639-1 (2-letter) to ISO 639-2 (3-letter) mapping for common languages.
+    # ffprobe typically returns 3-letter codes in stream language tags.
+    _LANG_CODE_MAP: Dict[str, list] = {
+        'en': ['eng'],
+        'zh': ['chi', 'zho'],
+        'ja': ['jpn'],
+        'ko': ['kor'],
+        'fr': ['fra', 'fre'],
+        'de': ['deu', 'ger'],
+        'es': ['spa'],
+        'it': ['ita'],
+        'pt': ['por'],
+        'ru': ['rus'],
+        'ar': ['ara'],
+        'hi': ['hin'],
+        'th': ['tha'],
+        'vi': ['vie'],
+        'id': ['ind'],
+        'ms': ['msa', 'may'],
+        'nl': ['nld', 'dut'],
+        'pl': ['pol'],
+        'cs': ['ces', 'cze'],
+        'tr': ['tur'],
+        'sv': ['swe'],
+        'da': ['dan'],
+        'fi': ['fin'],
+        'uk': ['ukr'],
+    }
+
+    async def check_embedded_subtitle_language(self, video_path: str, target_language: str) -> bool:
+        """
+        Check whether the video has an embedded subtitle stream matching target_language.
+
+        Uses ffprobe to read subtitle stream language tags and normalises both
+        ISO 639-1 (2-letter) and ISO 639-2 (3-letter) codes before comparing.
+
+        Returns True if a matching subtitle stream is found.
+        """
+        try:
+            cmd = [
+                'ffprobe',
+                '-v', 'error',
+                '-select_streams', 's',
+                '-show_entries', 'stream_tags=language',
+                '-of', 'json',
+                video_path,
+            ]
+
+            result = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, stderr = await result.communicate()
+
+            if result.returncode != 0:
+                logger.error(f"ffprobe subtitle check error: {stderr.decode()}")
+                return False
+
+            data = json.loads(stdout.decode())
+            streams = data.get('streams', [])
+
+            if not streams:
+                return False
+
+            # Build the set of acceptable codes for the target language
+            lang = target_language.lower()
+            accepted = {lang}
+            accepted.update(self._LANG_CODE_MAP.get(lang, []))
+
+            for stream in streams:
+                stream_lang = stream.get('tags', {}).get('language', '').lower()
+                if stream_lang in accepted:
+                    logger.info(
+                        f"Embedded subtitle stream matched: "
+                        f"stream_lang='{stream_lang}' target='{target_language}'"
+                    )
+                    return True
+
+            return False
+
+        except Exception as e:
+            logger.error(f"Error checking embedded subtitles: {e}", exc_info=True)
+            return False
+
     async def process_media(self, task: Dict) -> Optional[str]:
         """
         Process media file to generate subtitles.

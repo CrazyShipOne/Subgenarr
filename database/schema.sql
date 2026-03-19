@@ -36,6 +36,9 @@ CREATE TABLE IF NOT EXISTS media_library (
     poster_path TEXT, -- Poster/artwork image (poster.jpg, folder.jpg, etc.)
     directory_path TEXT NOT NULL,
 
+    -- Embedded subtitle flag (set when target-language subtitle stream is detected in video)
+    has_embedded_subtitle INTEGER NOT NULL DEFAULT 0,
+
     -- Status tracking
     existence_status TEXT NOT NULL DEFAULT 'exists' CHECK(existence_status IN ('exists', 'deleted')),
 
@@ -228,6 +231,7 @@ SELECT
     ml.*,
     CASE
         WHEN ml.subtitle_file_path IS NOT NULL THEN 'completed'
+        WHEN ml.has_embedded_subtitle = 1 THEN 'embed_found'
         WHEN EXISTS (SELECT 1 FROM task_queue tq WHERE tq.media_id = ml.media_id AND tq.status IN ('processing', 'metadata_fetching')) THEN 'processing'
         WHEN EXISTS (SELECT 1 FROM task_queue tq WHERE tq.media_id = ml.media_id AND tq.status = 'pending') THEN 'pending'
         WHEN EXISTS (SELECT 1 FROM task_queue tq WHERE tq.media_id = ml.media_id AND tq.status = 'failed') THEN 'failed'

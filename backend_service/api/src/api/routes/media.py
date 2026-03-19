@@ -26,9 +26,13 @@ router = APIRouter(prefix="/media", tags=["Media Catalog"])
 
 def get_processing_status(media: MediaLibrary, session) -> str:
     """Determine processing status for a media item."""
-    # Check if has subtitle
+    # Check if has generated subtitle
     if media.subtitle_file_path:
         return "completed"
+
+    # Check if embedded subtitle was detected in the video
+    if media.has_embedded_subtitle:
+        return "embed_found"
 
     # Check if has active task
     task = session.query(TaskQueue).filter(

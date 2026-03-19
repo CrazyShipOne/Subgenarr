@@ -78,6 +78,9 @@ class MediaLibrary(Base):
     poster_path = Column(String(1000), nullable=True)
     directory_path = Column(String(1000), nullable=False, index=True)
 
+    # Embedded subtitle flag (set when target-language subtitle stream is detected in video)
+    has_embedded_subtitle = Column(Boolean, nullable=False, default=False)
+
     # Status
     existence_status = Column(
         Enum(ExistenceStatus, values_callable=lambda x: [e.value for e in x]),

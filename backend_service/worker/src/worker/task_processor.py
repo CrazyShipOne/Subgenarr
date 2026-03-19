@@ -122,6 +122,18 @@ class TaskProcessor:
                 )
                 return
 
+            # Pre-check: detect embedded subtitle in target language
+            logger.info(f"Task {task_id}: Checking for embedded subtitles")
+            has_embedded = await self.media_processor.check_embedded_subtitle_language(
+                video_path, config.TARGET_SUBTITLE_LANGUAGE
+            )
+            if has_embedded:
+                logger.info(
+                    f"Task {task_id}: Embedded '{config.TARGET_SUBTITLE_LANGUAGE}' subtitle found, skipping"
+                )
+                await self._mark_task_embed_found(task_id, media_id, start_time)
+                return
+
             # Phase 1: Metadata Enrichment
             logger.info(f"Task {task_id}: Starting metadata enrichment phase")
             await self._update_task_status(task_id, TaskStatus.METADATA_FETCHING)
@@ -184,6 +196,50 @@ class TaskProcessor:
                     session.commit()
         except Exception as e:
             logger.error(f"Error updating task status: {e}", exc_info=True)
+
+    async def _mark_task_embed_found(
+        self,
+        task_id: int,
+        media_id: int,
+        start_time: datetime,
+    ):
+        """Mark media as having an embedded subtitle and remove the task from queue."""
+        try:
+            with get_db_session() as session:
+                end_time = datetime.now(timezone.utc)
+                duration = int((end_time - start_time).total_seconds())
+
+                # Flag the media record
+                media = session.query(MediaLibrary).filter(
+                    MediaLibrary.media_id == media_id
+                ).first()
+                if media:
+                    media.has_embedded_subtitle = True
+                    media.updated_at = end_time
+
+                # Remove task from queue
+                task = session.query(TaskQueue).filter(TaskQueue.task_id == task_id).first()
+                if task:
+                    session.delete(task)
+
+                # Record in history
+                history = ProcessingHistory(
+                    task_id=task_id,
+                    media_id=media_id,
+                    status=HistoryStatus.SUCCESS,
+                    processing_duration_seconds=duration,
+                    failure_reason="skipped_embedded_subtitle",
+                    error_details=None,
+                    created_at=end_time,
+                    updated_at=end_time,
+                )
+                session.add(history)
+
+                session.commit()
+                logger.info(f"Task {task_id}: Marked as embed_found")
+
+        except Exception as e:
+            logger.error(f"Error marking task as embed_found: {e}", exc_info=True)
 
     async def _mark_task_completed(
         self,

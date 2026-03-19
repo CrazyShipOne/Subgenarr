@@ -68,7 +68,8 @@
     "processing": "Processing",
     "completed": "Completed",
     "failed": "Failed",
-    "unprocessed": "No Subtitle"
+    "unprocessed": "No Subtitle",
+    "embed_found": "Embedded Subtitle"
   },
   "tasks": {
     "title": "Tasks",
