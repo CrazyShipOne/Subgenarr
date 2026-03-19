@@ -25,7 +25,7 @@
   },
   "auth": {
     "welcome": "欢迎",
-    "loginTitle": "登录视频字幕系统",
+    "loginTitle": "登录 Subgenarr",
     "loginButton": "登录",
     "invalidCredentials": "用户名或密码错误",
     "logoutSuccess": "已成功登出"

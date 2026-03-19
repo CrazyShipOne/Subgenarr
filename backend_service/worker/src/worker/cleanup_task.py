@@ -135,9 +135,9 @@ class CleanupTask:
             with get_db_session() as session:
                 now = datetime.now(timezone.utc)
 
-                # Query tasks with status "processing" that have timed out
+                # Query tasks with status "processing" or "metadata_fetching" that have timed out
                 timed_out_tasks = session.query(TaskQueue).filter(
-                    TaskQueue.status == TaskStatus.PROCESSING,
+                    TaskQueue.status.in_([TaskStatus.PROCESSING, TaskStatus.METADATA_FETCHING]),
                     TaskQueue.timeout_deadline < now
                 ).all()
 

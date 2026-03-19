@@ -60,7 +60,7 @@ class MediaLibrary(Base):
     imdb_id = Column(String(50), nullable=True, index=True)
 
     # Media type and metadata
-    media_type = Column(Enum(MediaType), nullable=False, index=True)
+    media_type = Column(Enum(MediaType, values_callable=lambda x: [e.value for e in x]), nullable=False, index=True)
     title = Column(String(500), nullable=False, index=True)
     year = Column(Integer, nullable=True)
     overview = Column(Text, nullable=True)
@@ -80,7 +80,7 @@ class MediaLibrary(Base):
 
     # Status
     existence_status = Column(
-        Enum(ExistenceStatus),
+        Enum(ExistenceStatus, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=ExistenceStatus.EXISTS,
         index=True
@@ -117,7 +117,7 @@ class TaskQueue(Base):
     video_file_path = Column(String(1000), nullable=False)
 
     # Status and processing info
-    status = Column(Enum(TaskStatus), nullable=False, default=TaskStatus.PENDING, index=True)
+    status = Column(Enum(TaskStatus, values_callable=lambda x: [e.value for e in x]), nullable=False, default=TaskStatus.PENDING, index=True)
     retry_count = Column(Integer, nullable=False, default=0)
     failure_reason = Column(Text, nullable=True)
 
@@ -156,7 +156,7 @@ class ProcessingHistory(Base):
     media_id = Column(Integer, ForeignKey('media_library.media_id', ondelete='CASCADE'), nullable=False, index=True)
 
     # Status and results
-    status = Column(Enum(HistoryStatus), nullable=False, index=True)
+    status = Column(Enum(HistoryStatus, values_callable=lambda x: [e.value for e in x]), nullable=False, index=True)
     processing_duration_seconds = Column(Integer, nullable=True)
     failure_reason = Column(String(200), nullable=True)
     error_details = Column(Text, nullable=True)

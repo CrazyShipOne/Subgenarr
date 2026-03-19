@@ -503,15 +503,17 @@ class MediaProcessor:
         language: str
     ) -> str:
         """Generate unique subtitle filename."""
-        index = 0
+        # Try without index first: {video}.{lang}.srt
+        filename = f"{video_filename}.{language}.srt"
+        if not os.path.exists(os.path.join(directory_path, filename)):
+            return filename
 
+        # Conflict found, increment from 1: {video}.{lang}.1.srt
+        index = 1
         while True:
-            filename = f"{video_filename}_{language}_{index}.srt"
-            full_path = os.path.join(directory_path, filename)
-
-            if not os.path.exists(full_path):
+            filename = f"{video_filename}.{language}.{index}.srt"
+            if not os.path.exists(os.path.join(directory_path, filename)):
                 return filename
-
             index += 1
 
     def _format_srt_timestamp(self, seconds: float) -> str:

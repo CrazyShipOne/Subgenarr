@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import os
 from datetime import datetime, timezone, timedelta
 from typing import Optional, Dict
 
@@ -18,6 +19,7 @@ from shared import (
     ProcessingHistory,
     TaskStatus,
     HistoryStatus,
+    ExistenceStatus,
     config,
 )
 from .metadata_enrichment import MetadataEnricher
@@ -52,7 +54,8 @@ class TaskProcessor:
                             TaskStatus.PENDING,
                             TaskStatus.FAILED
                         ]),
-                        TaskQueue.retry_count < config.MAX_FAILURE_COUNT
+                        TaskQueue.retry_count < config.MAX_FAILURE_COUNT,
+                        MediaLibrary.existence_status == ExistenceStatus.EXISTS,
                     )
                 ).order_by(TaskQueue.created_at.asc())
 
@@ -103,6 +106,22 @@ class TaskProcessor:
         start_time = datetime.now(timezone.utc)
 
         try:
+            # Pre-check: verify media files still exist on disk
+            video_path = task['video_file_path']
+            directory_path = task['directory_path']
+            if not os.path.exists(video_path) or not os.path.exists(directory_path):
+                logger.warning(
+                    f"Task {task_id}: Media files no longer exist "
+                    f"(video: {video_path}, directory: {directory_path}), marking as deleted"
+                )
+                await self._mark_media_deleted(media_id)
+                await self._mark_task_failed(
+                    task_id, media_id, start_time,
+                    "media_not_found",
+                    f"Video file or directory no longer exists: {video_path}"
+                )
+                return
+
             # Phase 1: Metadata Enrichment
             logger.info(f"Task {task_id}: Starting metadata enrichment phase")
             await self._update_task_status(task_id, TaskStatus.METADATA_FETCHING)
@@ -211,6 +230,21 @@ class TaskProcessor:
 
         except Exception as e:
             logger.error(f"Error marking task as completed: {e}", exc_info=True)
+
+    async def _mark_media_deleted(self, media_id: int):
+        """Mark media as deleted in the library."""
+        try:
+            with get_db_session() as session:
+                media = session.query(MediaLibrary).filter(
+                    MediaLibrary.media_id == media_id
+                ).first()
+                if media:
+                    media.existence_status = ExistenceStatus.DELETED
+                    media.updated_at = datetime.now(timezone.utc)
+                    session.commit()
+                    logger.info(f"Media {media_id} marked as deleted")
+        except Exception as e:
+            logger.error(f"Error marking media {media_id} as deleted: {e}", exc_info=True)
 
     async def _mark_task_failed(
         self,

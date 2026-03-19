@@ -25,7 +25,7 @@
   },
   "auth": {
     "welcome": "Welcome",
-    "loginTitle": "Login to Video Subtitle System",
+    "loginTitle": "Login to Subgenarr",
     "loginButton": "Sign In",
     "invalidCredentials": "Invalid credentials",
     "logoutSuccess": "Logged out successfully"

@@ -138,15 +138,31 @@ class MediaScanner:
         nfo_data = self._parse_nfo_basic(nfo_path)
 
         if not nfo_data:
-            logger.error(f"Failed to parse NFO file: {nfo_path}")
-            raise ValueError(f"Failed to parse NFO: {nfo_path}")
+            logger.debug(f"Skipping non-episode NFO: {nfo_path}")
+            return 'skipped'
 
         # Find video file
         video_path = self._find_video_file(nfo_path, nfo_data.get('media_type'))
 
         if not video_path:
-            logger.warning(f"No video file found for NFO: {nfo_path}")
-            raise ValueError(f"No video file found for: {nfo_path}")
+            logger.info(f"No video file found for NFO, skipping: {nfo_path}")
+            return 'nfo_notfound'
+
+        # Check if this video file is already tracked (e.g. by another NFO in the same directory)
+        with get_db_session() as session:
+            existing_video = session.query(MediaLibrary).filter(
+                MediaLibrary.video_file_path == video_path
+            ).first()
+            if existing_video:
+                logger.info(f"Video already tracked by another NFO, skipping: {video_path}")
+                return 'existing'
+
+            existing_video_task = session.query(TaskQueue).filter(
+                TaskQueue.video_file_path == video_path
+            ).first()
+            if existing_video_task:
+                logger.info(f"Video already queued by another NFO, skipping: {video_path}")
+                return 'existing'
 
         # Find poster file
         poster_path = self._find_poster_file(nfo_path, nfo_data.get('media_type'), nfo_data.get('season'))
@@ -208,14 +224,22 @@ class MediaScanner:
 
             data = {}
 
-            # Determine media type
-            if root.find('season') is not None or root.find('episode') is not None:
+            # tvshow.nfo and season.nfo are metadata-only, skip them
+            root_tag = root.tag.lower()
+            if root_tag in ('tvshow', 'season'):
+                return None
+
+            # Determine media type from root tag, fall back to child element check
+            if root_tag == 'movie':
+                data['media_type'] = MediaType.MOVIE
+            elif root_tag == 'episodedetails':
+                data['media_type'] = MediaType.TV
+            elif root.find('season') is not None or root.find('episode') is not None:
                 data['media_type'] = MediaType.TV
             else:
                 data['media_type'] = MediaType.MOVIE
 
             # Extract basic fields
-            data['title'] = self._get_text(root, 'title')
             data['year'] = self._get_int(root, 'year')
             data['tmdb_id'] = self._get_text(root, 'tmdbid') or self._get_text(root, 'id')
             data['imdb_id'] = self._get_text(root, 'imdbid')
@@ -224,6 +248,13 @@ class MediaScanner:
             if data['media_type'] == MediaType.TV:
                 data['season'] = self._get_int(root, 'season')
                 data['episode'] = self._get_int(root, 'episode')
+                # Use <showtitle> for the series name; fall back to <title>
+                data['title'] = (
+                    self._get_text(root, 'showtitle') or
+                    self._get_text(root, 'title')
+                )
+            else:
+                data['title'] = self._get_text(root, 'title')
 
             return data
 

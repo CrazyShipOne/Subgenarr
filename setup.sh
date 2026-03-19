@@ -1,12 +1,11 @@
 #!/bin/bash
 
-# Video Subtitle Generation System - Setup Script
-# This script helps initialize the system for first-time use
+# Subgenarr - Setup Script
 
 set -e
 
 echo "=========================================="
-echo "Video Subtitle Generation System - Setup"
+echo "Subgenarr - Setup"
 echo "=========================================="
 echo ""
 
@@ -47,17 +46,7 @@ mkdir -p media/tv
 mkdir -p tmp
 echo "✓ Directories created"
 
-# Initialize database
-echo ""
-echo "Initializing database..."
-if [ ! -f config/media_library.db ]; then
-    sqlite3 config/media_library.db < database/schema.sql
-    echo "✓ Database initialized"
-else
-    echo "✓ Database already exists"
-fi
-
-# Build Docker images
+# Build and start Docker images
 echo ""
 echo "Building Docker images (this may take a few minutes)..."
 docker-compose build
@@ -76,7 +65,7 @@ echo "2. Start the services:"
 echo "   docker-compose up -d"
 echo ""
 echo "3. Access the web interface:"
-echo "   http://localhost:3000"
+echo "   http://localhost:3500"
 echo ""
 echo "4. View logs:"
 echo "   docker-compose logs -f"

@@ -6,14 +6,14 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Copy shared module first
-COPY ../shared /app/shared
+COPY shared /app/shared
 
 # Copy API requirements and install
-COPY requirements.txt /app/
+COPY api/requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy API source code
-COPY src /app/src
+COPY api/src /app/src
 
 # Set Python path
 ENV PYTHONPATH=/app:/app/src

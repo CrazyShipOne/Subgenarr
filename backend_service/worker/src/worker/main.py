@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 
 sys.path.append('/app/shared')
 
-from shared import config, init_db
+from shared import config, init_db, get_db_session, TaskQueue, TaskStatus
 from .task_processor import TaskProcessor
 from .media_scanner import MediaScanner
 from .cleanup_task import CleanupTask
@@ -50,6 +50,9 @@ class WorkerService:
         init_db()
         logger.info("Database initialized")
 
+        # Reset tasks interrupted by previous restart
+        self._reset_interrupted_tasks()
+
         self.running = True
 
         try:
@@ -65,6 +68,29 @@ class WorkerService:
         except Exception as e:
             logger.error(f"Fatal error in worker service: {e}", exc_info=True)
             raise
+
+    def _reset_interrupted_tasks(self):
+        """Reset tasks that were interrupted by a previous restart back to PENDING."""
+        try:
+            with get_db_session() as session:
+                interrupted = session.query(TaskQueue).filter(
+                    TaskQueue.status.in_([TaskStatus.PROCESSING, TaskStatus.METADATA_FETCHING])
+                ).all()
+
+                if not interrupted:
+                    return
+
+                for task in interrupted:
+                    task.status = TaskStatus.PENDING
+                    task.worker_assignment = None
+                    task.started_time = None
+                    task.timeout_deadline = None
+
+                session.commit()
+                logger.info(f"Reset {len(interrupted)} interrupted task(s) to PENDING")
+
+        except Exception as e:
+            logger.error(f"Error resetting interrupted tasks: {e}", exc_info=True)
 
     async def _task_processing_loop(self):
         """Main task processing loop."""

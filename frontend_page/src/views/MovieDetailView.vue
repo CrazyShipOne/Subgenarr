@@ -150,7 +150,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { mediaApi } from '@/api/media'
 import { tasksApi } from '@/api/tasks'
@@ -158,7 +158,6 @@ import type { MediaDetail, MediaFiles } from '@/types/api'
 
 const { t } = useI18n()
 const route = useRoute()
-const router = useRouter()
 
 const media = ref<MediaDetail | null>(null)
 const files = ref<MediaFiles | null>(null)

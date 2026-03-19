@@ -40,9 +40,11 @@ Authenticate user and create session.
 ```json
 {
   "success": true,
-  "message": "Login successful",
-  "user": {
-    "username": "string"
+  "data":{
+    "message": "Login successful",
+    "user": {
+      "username": "string"
+    }
   }
 }
 ```

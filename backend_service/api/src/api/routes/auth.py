@@ -48,8 +48,10 @@ async def login(request: LoginRequest, response: Response):
 
     return LoginResponse(
         success=True,
-        message="Login successful",
-        user={"username": request.username}
+        data={
+            "user": {"username": request.username},
+            "message": "Login successful"
+        }
     )
 
 

@@ -9,8 +9,8 @@
     >
       <!-- Logo/Title -->
       <div class="h-16 flex items-center justify-center border-b border-gray-700">
-        <h1 v-if="sidebarOpen" class="text-xl font-bold">Video Subtitle</h1>
-        <span v-else class="text-xl">VS</span>
+        <h1 v-if="sidebarOpen" class="text-xl font-bold">Subgenarr</h1>
+        <span v-else class="text-xl">SG</span>
       </div>
 
       <!-- Menu Items -->

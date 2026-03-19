@@ -524,13 +524,14 @@ async def get_media_files(
             # Generated subtitle
             if media.subtitle_file_path:
                 subtitle_exists = os.path.exists(media.subtitle_file_path)
-                # Extract language from filename (e.g., filename_en_0.srt)
+                # Extract language from filename (e.g., video.en.srt or video.en.1.srt)
                 language = None
                 if subtitle_exists:
                     basename = os.path.basename(media.subtitle_file_path)
-                    parts = basename.rsplit('_', 2)
+                    stem = basename[:-4]  # remove .srt
+                    parts = stem.rsplit('.', 2)
                     if len(parts) >= 2:
-                        language = parts[-2]
+                        language = parts[-2] if parts[-1].isdigit() else parts[-1]
 
                 files["generated_subtitle"] = {
                     "path": media.subtitle_file_path,

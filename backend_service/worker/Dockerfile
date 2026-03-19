@@ -11,14 +11,14 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy shared module first
-COPY ../shared /app/shared
+COPY shared /app/shared
 
 # Copy worker requirements and install
-COPY requirements.txt /app/
+COPY worker/requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy worker source code
-COPY src /app/src
+COPY worker/src /app/src
 
 # Set Python path
 ENV PYTHONPATH=/app:/app/src

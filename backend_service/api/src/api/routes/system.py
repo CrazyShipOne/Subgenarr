@@ -3,6 +3,7 @@
 import os
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status as http_status
+from sqlalchemy import text
 from typing import Optional
 
 import sys
@@ -33,7 +34,7 @@ async def health_check():
     # Check database
     try:
         with engine.connect() as conn:
-            conn.execute("SELECT 1")
+            conn.execute(text("SELECT 1"))
         services["database"] = "healthy"
     except Exception as e:
         services["database"] = "unhealthy"

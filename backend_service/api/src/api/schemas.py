@@ -16,8 +16,7 @@ class LoginRequest(BaseModel):
 
 class LoginResponse(BaseModel):
     success: bool
-    message: str
-    user: Optional[dict] = None
+    data: Optional[dict] = None
 
 
 class LogoutResponse(BaseModel):
