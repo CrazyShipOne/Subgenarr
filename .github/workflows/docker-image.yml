@@ -55,7 +55,7 @@ jobs:
             image: crazyship/subgenarr-frontend
             context: ./frontend_page
             dockerfile: ./frontend_page/Dockerfile
-          - name: api
+          - name: backend
             image: crazyship/subgenarr-backend
             context: ./backend_service
             dockerfile: ./backend_service/api/Dockerfile
