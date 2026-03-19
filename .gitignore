@@ -10,6 +10,7 @@ config/
 # Media and temporary files
 media/
 tmp/
+test_folder/
 
 # Python
 __pycache__/

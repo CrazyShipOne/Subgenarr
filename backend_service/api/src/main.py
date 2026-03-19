@@ -1,4 +1,4 @@
-"""Main FastAPI application for the Video Subtitle Generation API."""
+"""Main FastAPI application for the Subgenarr API."""
 
 import sys
 sys.path.append('/app/shared')
@@ -39,7 +39,7 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI application
 app = FastAPI(
-    title="Video Subtitle Generation API",
+    title="Subgenarr API",
     description="API for automated subtitle generation using LLM technology",
     version="1.0.0",
     lifespan=lifespan
@@ -84,7 +84,7 @@ app.include_router(system.router, prefix="/api")
 async def root():
     """Root endpoint."""
     return {
-        "name": "Video Subtitle Generation API",
+        "name": "Subgenarr API",
         "version": "1.0.0",
         "status": "running"
     }

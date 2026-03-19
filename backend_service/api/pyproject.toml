@@ -1,5 +1,5 @@
 [project]
-name = "video-subtitle-api"
+name = "subgenarr-api"
 version = "1.0.0"
 description = "API service for automated video subtitle generation"
 requires-python = ">=3.11"

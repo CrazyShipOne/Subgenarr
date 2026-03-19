@@ -20,21 +20,16 @@ Automated subtitle generation for movies and TV shows using multimodal AI (audio
 
 ## Quick Start
 
-### 1. Clone
+### 1. Download and Configure
 
 ```bash
-git clone <repository-url>
-cd subgenarr
-```
-
-### 2. Configure
-
-```bash
+curl -O https://raw.githubusercontent.com/crazyship/subgenarr/main/docker-compose.yml
+curl -O https://raw.githubusercontent.com/crazyship/subgenarr/main/.env.example
 cp .env.example .env
 # Edit .env with your settings
 ```
 
-### 3. Prepare Media Directory
+### 2. Prepare Media Directory
 
 NFO files are required for media discovery. Jellyfin and Emby generate these automatically.
 
@@ -54,13 +49,24 @@ media/
             └── poster.jpg
 ```
 
-### 4. Start
+### 3. Start
 
 ```bash
 docker-compose up -d
 ```
 
 Open http://localhost:3500 and log in with the credentials set in `.env`.
+
+### Build from Source
+
+To build images locally instead of using Docker Hub:
+
+```bash
+git clone <repository-url>
+cd subgenarr
+cp .env.example .env
+docker-compose -f docker-compose.build.yml up -d
+```
 
 Media scanning starts automatically on launch and repeats every hour. Subtitle generation can be triggered manually from the media detail page, or will run automatically when new files are detected.
 
@@ -145,12 +151,12 @@ Configure paths in `docker-compose.yml`:
 
 **Media not appearing**
 - Confirm NFO files are present and valid XML
-- Check worker logs: `docker logs video-subtitle-worker`
+- Check worker logs: `docker logs subgenarr-worker`
 
 **Subtitle generation failing**
 - Verify AI API credentials and that the model supports vision input
 - Ensure sufficient disk space in the tmp volume
-- Check worker logs: `docker logs video-subtitle-worker`
+- Check worker logs: `docker logs subgenarr-worker`
 
 **Poster images not loading**
 - Verify poster files exist in the media directory (`poster.jpg` or `folder.jpg`)

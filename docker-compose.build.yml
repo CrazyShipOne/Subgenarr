@@ -3,7 +3,9 @@ version: '3.8'
 services:
   # Frontend service
   frontend:
-    image: crazyship/subgenarr-frontend:latest
+    build:
+      context: ./frontend_page
+      dockerfile: Dockerfile
     container_name: subgenarr-frontend
     ports:
       - "3500:80"
@@ -15,7 +17,9 @@ services:
 
   # Backend API service
   backend-api:
-    image: crazyship/subgenarr-backend:latest
+    build:
+      context: ./backend_service
+      dockerfile: api/Dockerfile
     container_name: subgenarr-backend
     ports:
       - "8000:8000"
@@ -51,7 +55,9 @@ services:
 
   # Backend Worker service
   backend-worker:
-    image: crazyship/subgenarr-worker:latest
+    build:
+      context: ./backend_service
+      dockerfile: worker/Dockerfile
     container_name: subgenarr-worker
     environment:
       # AI Configuration

@@ -1,5 +1,5 @@
 [project]
-name = "video-subtitle-worker"
+name = "subgenarr-worker"
 version = "1.0.0"
 description = "Worker service for automated video subtitle generation"
 requires-python = ">=3.11"
