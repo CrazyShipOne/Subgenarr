@@ -154,3 +154,11 @@ Configure paths in `docker-compose.yml`:
 
 **Poster images not loading**
 - Verify poster files exist in the media directory (`poster.jpg` or `folder.jpg`)
+
+---
+
+## License
+
+Subgenarr is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html).
+
+You are free to use, modify, and distribute this software under the terms of the GPL v3. Any derivative works must also be distributed under the same license.
