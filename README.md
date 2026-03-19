@@ -1,26 +1,26 @@
-# Subgenarr
+# Subgenarr 🎬
 
 Automated subtitle generation for movies and TV shows using multimodal AI (audio + video frames). Designed to work alongside Jellyfin/Emby media libraries.
 
-## Features
+## ✨ Features
 
-- **Automatic Media Discovery** — Scans media directories for movies and TV shows using NFO metadata files
-- **AI Subtitle Generation** — Uses multimodal LLM (audio + screenshots) for accurate transcription
-- **Web Interface** — Browse media, monitor tasks, and view processing history
-- **Task Management** — Queue, retry, and cancel subtitle generation jobs
-- **Multilingual UI** — English and Chinese interface
+- 🔍 **Automatic Media Discovery** — Scans media directories for movies and TV shows using NFO metadata files
+- 🤖 **AI Subtitle Generation** — Uses multimodal LLM (audio + screenshots) for accurate transcription
+- 🌐 **Web Interface** — Browse media, monitor tasks, and view processing history
+- 📋 **Task Management** — Queue, retry, and cancel subtitle generation jobs
+- 🌏 **Multilingual UI** — English and Chinese interface
 
-## Requirements
+## 📦 Requirements
 
-- Docker & Docker Compose
-- Media library with NFO files (Jellyfin/Emby format)
-- OpenAI-compatible LLM API with **vision support** (OpenAI, Azure, Ollama, vLLM, etc.)
+- 🐳 Docker & Docker Compose
+- 📁 Media library with NFO files (Jellyfin/Emby format)
+- 🧠 OpenAI-compatible LLM API with **vision support** (OpenAI, Azure, Ollama, vLLM, etc.)
 - [TMDb API key](https://www.themoviedb.org/settings/api)
 - [OMDb API key](http://www.omdbapi.com/apikey.aspx)
 
-## Quick Start
+## 🚀 Quick Start
 
-### 1. Download and Configure
+### 1. ⬇️ Download and Configure
 
 ```bash
 curl -O https://raw.githubusercontent.com/crazyship/subgenarr/main/docker-compose.yml
@@ -29,7 +29,7 @@ cp .env.example .env
 # Edit .env with your settings
 ```
 
-### 2. Prepare Media Directory
+### 2. 📁 Prepare Media Directory
 
 NFO files are required for media discovery. Jellyfin and Emby generate these automatically.
 
@@ -49,7 +49,7 @@ media/
             └── poster.jpg
 ```
 
-### 3. Start
+### 3. ▶️ Start
 
 ```bash
 docker-compose up -d
@@ -57,7 +57,7 @@ docker-compose up -d
 
 Open http://localhost:3500 and log in with the credentials set in `.env`.
 
-### Build from Source
+### 🔨 Build from Source
 
 To build images locally instead of using Docker Hub:
 
@@ -68,7 +68,7 @@ cp .env.example .env
 docker-compose -f docker-compose.build.yml up -d
 ```
 
-Media scanning starts automatically on launch and repeats every hour. Subtitle generation can be triggered manually from the media detail page, or will run automatically when new files are detected.
+⏱️ Media scanning starts automatically on launch and repeats every hour. Subtitle generation can be triggered manually from the media detail page, or will run automatically when new files are detected.
 
 Generated subtitle files are saved alongside the video file in Jellyfin/Emby-compatible format:
 ```
@@ -77,11 +77,11 @@ Breaking Bad - S01E01.en.srt
 
 ---
 
-## Configuration
+## ⚙️ Configuration
 
 All settings are configured via `.env`. See `.env.example` for the full list.
 
-### AI
+### 🤖 AI
 
 | Variable | Description | Default |
 |---|---|---|
@@ -102,7 +102,7 @@ AI_API_KEY=ollama
 AI_MODEL=llava
 ```
 
-### Authentication
+### 🔐 Authentication
 
 | Variable | Default |
 |---|---|
@@ -110,14 +110,14 @@ AI_MODEL=llava
 | `AUTH_PASSWORD` | `admin123` |
 | `SESSION_SECRET` | *(must change in production)* |
 
-### Metadata
+### 🎞️ Metadata
 
 | Variable | Description |
 |---|---|
 | `TMDB_API_KEY` | TMDb API key for movie/show metadata |
 | `OMDB_API_KEY` | OMDb API key |
 
-### Processing
+### ⚙️ Processing
 
 | Variable | Description | Default |
 |---|---|---|
@@ -128,7 +128,7 @@ AI_MODEL=llava
 | `TASK_TIMEOUT` | Max processing time per task (seconds) | `7200` |
 | `SCAN_INTERVAL` | Media scan interval in seconds | `3600` |
 
-### Volume Mounts
+### 💾 Volume Mounts
 
 Configure paths in `docker-compose.yml`:
 
@@ -138,7 +138,7 @@ Configure paths in `docker-compose.yml`:
 | `/config` | Database storage |
 | `/tmp` | Temporary processing files |
 
-### Ports
+### 🔌 Ports
 
 | Service | Default |
 |---|---|
@@ -147,23 +147,23 @@ Configure paths in `docker-compose.yml`:
 
 ---
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
-**Media not appearing**
+**📂 Media not appearing**
 - Confirm NFO files are present and valid XML
 - Check worker logs: `docker logs subgenarr-worker`
 
-**Subtitle generation failing**
+**❌ Subtitle generation failing**
 - Verify AI API credentials and that the model supports vision input
 - Ensure sufficient disk space in the tmp volume
 - Check worker logs: `docker logs subgenarr-worker`
 
-**Poster images not loading**
+**🖼️ Poster images not loading**
 - Verify poster files exist in the media directory (`poster.jpg` or `folder.jpg`)
 
 ---
 
-## License
+## 📄 License
 
 Subgenarr is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html).
 
