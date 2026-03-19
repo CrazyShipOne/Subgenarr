@@ -52,8 +52,8 @@ export const mediaApi = {
     return response.data
   },
 
-  async getTVShowDetail(showTitle: string): Promise<ApiResponse<TVShowDetail>> {
-    const response = await apiClient.get(`/media/tvshows/detail/${encodeURIComponent(showTitle)}`)
+  async getTVShowDetail(mediaId: number): Promise<ApiResponse<TVShowDetail>> {
+    const response = await apiClient.get(`/media/tvshows/detail/${mediaId}`)
     return response.data
   },
 

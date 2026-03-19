@@ -99,7 +99,6 @@ class MetadataEnricher:
             data = {}
 
             # Common fields
-            data['title'] = self._get_text(root, 'title')
             data['year'] = self._get_int(root, 'year')
             data['overview'] = self._get_text(root, 'plot')
             data['tmdb_id'] = self._get_text(root, 'tmdbid') or self._get_text(root, 'id')
@@ -117,6 +116,13 @@ class MetadataEnricher:
                 data['season'] = self._get_int(root, 'season')
                 data['episode'] = self._get_int(root, 'episode')
                 data['episode_overview'] = self._get_text(root, 'plot')
+                # Use <showtitle> for the series name; fall back to <title>
+                data['title'] = (
+                    self._get_text(root, 'showtitle') or
+                    self._get_text(root, 'title')
+                )
+            else:
+                data['title'] = self._get_text(root, 'title')
 
             return data
 

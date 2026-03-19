@@ -343,14 +343,27 @@ async def list_tvshows(
         )
 
 
-@router.get("/tvshows/detail/{show_title:path}")
+@router.get("/tvshows/detail/{media_id}")
 async def get_tvshow_detail(
-    show_title: str,
+    media_id: int,
     user: dict = Depends(get_current_user)
 ):
     """Get detailed hierarchical information for a TV show (seasons → episodes)."""
     try:
         with get_db_session() as session:
+            # Resolve show title from the representative media_id
+            representative = session.query(MediaLibrary).filter(
+                MediaLibrary.media_id == media_id
+            ).first()
+
+            if not representative:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="TV show not found"
+                )
+
+            show_title = representative.title
+
             # Get all episodes for this show
             episodes = session.query(MediaLibrary).filter(
                 and_(

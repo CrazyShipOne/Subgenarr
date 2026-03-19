@@ -73,7 +73,7 @@
         v-for="show in tvShows"
         :key="show.media_id"
         class="bg-white rounded-lg shadow hover:shadow-lg transition cursor-pointer overflow-hidden"
-        @click="goToDetail(show.title)"
+        @click="goToDetail(show.media_id)"
       >
         <!-- Poster -->
         <div class="aspect-[2/3] bg-gray-200 relative">
@@ -132,7 +132,7 @@
             v-for="show in tvShows"
             :key="show.media_id"
             class="hover:bg-gray-50 cursor-pointer"
-            @click="goToDetail(show.title)"
+            @click="goToDetail(show.media_id)"
           >
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">
@@ -162,7 +162,7 @@
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
               <button
                 class="text-blue-600 hover:text-blue-900"
-                @click.stop="goToDetail(show.title)"
+                @click.stop="goToDetail(show.media_id)"
               >
                 {{ t('common.view') }}
               </button>
@@ -273,8 +273,8 @@ function goToPage(page: number) {
   loadTVShows()
 }
 
-function goToDetail(showTitle: string) {
-  router.push({ name: 'tvshow-detail', params: { showTitle } })
+function goToDetail(mediaId: number) {
+  router.push({ name: 'tvshow-detail', params: { mediaId } })
 }
 
 function getPosterUrl(mediaId: number): string {

@@ -35,7 +35,7 @@ const router = createRouter({
           component: () => import('@/views/TVShowsView.vue')
         },
         {
-          path: 'tvshows/:showTitle',
+          path: 'tvshows/:mediaId',
           name: 'tvshow-detail',
           component: () => import('@/views/TVShowDetailView.vue')
         },

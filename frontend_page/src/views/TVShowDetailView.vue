@@ -171,8 +171,8 @@ async function loadTVShow() {
   error.value = null
 
   try {
-    const showTitle = route.params.showTitle as string
-    const response = await mediaApi.getTVShowDetail(showTitle)
+    const mediaId = Number(route.params.mediaId)
+    const response = await mediaApi.getTVShowDetail(mediaId)
 
     if (response.success && response.data) {
       tvShow.value = response.data
